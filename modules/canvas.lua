@@ -769,8 +769,63 @@ function TeletextCanvas:outputFlush(out)
     end
 end
 
+local lastCanvasStack = {}
+local lastCanvasHash = {}
+local function diffCanvasStack(newStack, baseCanvas)
+    -- Find any canvases that were removed
+    local removed = {}
+    local kept, newCanvasHash = {}, {}
+    for i = 1, #lastCanvasStack do
+        removed[lastCanvasStack[i][1]] = lastCanvasStack[i]
+    end
+    for i = 1, #newStack do
+        if removed[newStack[i][1]] then
+            kept[#kept+1] = newStack[i]
+            removed[newStack[i][1]] = nil
+            newStack[i][1].allDirty = false
+        else -- New
+            newStack[i][1].allDirty = true
+        end
+
+        newCanvasHash[newStack[i][1]] = newStack[i]
+    end
+
+    -- Mark rectangle of removed canvases on bgCanvas (TODO: using bgCanvas is a hack)
+    for _, canvas in pairs(removed) do
+        if canvas[1].brand == "TextCanvas" then
+            baseCanvas:dirtyRect(canvas[2], canvas[3], canvas[1].width*2, canvas[1].height*3)
+        else
+            baseCanvas:dirtyRect(canvas[2], canvas[3], canvas[1].width, canvas[1].height)
+        end
+    end
+
+    -- For each kept canvas, mark the bounds if the new bounds are different
+    for i = 1, #kept do
+        local newCanvas = kept[i]
+        local oldCanvas = lastCanvasHash[newCanvas[1]]
+        if oldCanvas then
+            if oldCanvas[2] ~= newCanvas[2] or oldCanvas[3] ~= newCanvas[3] then
+                -- TODO: Optimize this?
+                if oldCanvas[1].brand == "TextCanvas" then
+                    baseCanvas:dirtyRect(oldCanvas[2], oldCanvas[3], oldCanvas[1].width*2, oldCanvas[1].height*3)
+                    baseCanvas:dirtyRect(newCanvas[2], newCanvas[3], newCanvas[1].width*2, newCanvas[1].height*3)
+                else
+                    baseCanvas:dirtyRect(oldCanvas[2], oldCanvas[3], oldCanvas[1].width, oldCanvas[1].height)
+                    baseCanvas:dirtyRect(newCanvas[2], newCanvas[3], newCanvas[1].width, newCanvas[1].height)
+                end
+            end
+        end
+    end
+
+    lastCanvasStack = newStack
+    lastCanvasHash = newCanvasHash
+end
+
+
 return {
     PixelCanvas = PixelCanvas,
     TeletextCanvas = TeletextCanvas,
     TextCanvas = TextCanvas,
+
+    diffCanvasStack = diffCanvasStack,
 }
