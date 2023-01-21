@@ -71,6 +71,10 @@ end
 ---@param deps any[]?
 ---@return T
 function Solyd.useMemo(fun, deps)
+    if type(fun) == "table" then
+        return Solyd.useMemo(deps, fun) ---@diagnostic disable-line
+    end
+
     local key = getKey()
 
     local memo = __hook[key]
@@ -95,6 +99,10 @@ function Solyd.useMemo(fun, deps)
 end
 
 function Solyd.useCallback(fun, deps)
+    if type(fun) == "table" then
+        return Solyd.useCallback(deps, fun) ---@diagnostic disable-line
+    end
+
     return Solyd.useMemo(function() return fun end, deps)
 end
 
@@ -103,6 +111,10 @@ end
 ---@param fun fun(): fun()?
 ---@param deps any[]?
 function Solyd.useEffect(fun, deps)
+    if type(fun) == "table" then
+        return Solyd.useEffect(deps, fun) ---@diagnostic disable-line
+    end
+
     local key = getKey()
 
     local memo = __hook[key]
