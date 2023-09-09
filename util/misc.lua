@@ -17,7 +17,7 @@ local function tableSize(t)
 end
 
 ---Renders a Solyd tree and bakes the canvases into one
-function bakeToCanvas(rootComponent)
+local function bakeToCanvas(rootComponent)
     local tree = Solyd.render(nil, rootComponent)
     local context = Solyd.getTopologicalContext(tree, { "canvas" })
     local minX, minY = math.huge, math.huge
