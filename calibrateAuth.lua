@@ -1,5 +1,8 @@
+---@diagnostic disable
+-- TODO: Fix up this file
+
 local sensor = peripheral.find("manipulator")
-local monitor = peripheral.find("monitor")
+local monitor = peripheral.find("monitor") ---@type MonitorPeripheral
 
 monitor.setTextScale(0.5)
 local monitorWidth, monitorHeight = monitor.getSize()
@@ -51,8 +54,26 @@ local function getOnePlayer()
 end
 
 
-
+---@class Ray
+---@field x number
+---@field y number
+---@field z number
+---@field x2 number
+---@field y2 number
+---@field z2 number
+---@field dirX number
+---@field dirY number
+---@field dirZ number
+---@field yaw number
+---@field pitch number
+---@overload fun(details: table): Ray
 local Ray = {}
+
+---@class V3
+---@field x number
+---@field y number
+---@field z number
+---@overload fun(x: number, y: number, z: number): V3
 local V3 = {}
 
 function Ray.new(details)
@@ -194,7 +215,7 @@ function V3:round()
     return V3.new(math.floor(self.x + 0.5), math.floor(self.y + 0.5), math.floor(self.z + 0.5))
 end
 
-function vmax(...)
+local function vmax(...)
     local args = {...}
     local max = args[1]
     local maxVal = max:mag()
@@ -260,7 +281,7 @@ end
 
 local calibration
 if fs.exists("calibration") then
-    local handle = fs.open("calibration", "r")
+    local handle = fs.open("calibration", "r") ---@cast handle FileHandle
     local cVals = textutils.unserialize(handle.readAll())
     handle.close()
 

@@ -4,8 +4,9 @@ local TeletextCanvas = canvases.TeletextCanvas
 local TextCanvas = canvases.TextCanvas
 
 
-local mon = peripheral.find("monitor")
+local mon = peripheral.find("monitor") ---@type Term?
 if mon then
+    ---@cast mon MonitorPeripheral
     mon.setTextScale(0.5)
 else
     mon = term

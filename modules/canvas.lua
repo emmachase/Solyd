@@ -58,6 +58,7 @@ end
 ---@alias Terminal table A computercraft terminal object
 
 ---@class PixelCanvas
+---@field brand "PixelCanvas"
 ---@field width integer
 ---@field height integer
 ---@field canvas { [integer]: { [integer]: integer } }
@@ -70,6 +71,7 @@ setmetatable(PixelCanvas, { __call = function(_, ...) return PixelCanvas.new(...
 
 function PixelCanvas.new(width, height)
     local self = setmetatable({__opaque = true}, PixelCanvas_mt)
+    self.brand = "PixelCanvas"
     self.width = width
     self.height = height
     self.canvas = {}
@@ -88,7 +90,7 @@ end
 ---Set the pixel at {x}, {y} to {c}.
 ---@param x integer
 ---@param y integer
----@param c Color
+---@param c Color?
 function PixelCanvas:setPixel(x, y, c)
     x, y = floor(x), floor(y)
     -- TODO: remove bounds checking?
@@ -322,6 +324,7 @@ function PixelCanvas:composite(others)
 end
 
 ---@class TextCanvas
+---@field brand "TextCanvas"
 ---@field width number
 ---@field height number
 ---@field canvas { [integer]: { t: { [integer]: string }, c: { [integer]: string }, b: { [integer]: string } } }
@@ -578,8 +581,8 @@ function TeletextCanvas:composite(...)
         for x, _ in pairs(row) do
             local targetX = ceil(x / 2)
             local currPixel = self.pixelCanvas.canvas[y][x]
-            partitionY = ceil(y/partitionSize) --math.min(floor(y/partitionSize)+1, #partitions)
-            partitionX = ceil(x/partitionSize) --math.min(floor(x/partitionSize)+1, #partitions[1])
+            local partitionY = ceil(y/partitionSize) --math.min(floor(y/partitionSize)+1, #partitions)
+            local partitionX = ceil(x/partitionSize) --math.min(floor(x/partitionSize)+1, #partitions[1])
             --print("getting partition (partizion size " .. partitionSize .. ") at x: " .. x .. ", y: " .. y .. " -> ".. floor(x/partitionSize)+1 .. ", " .. floor(y/partitionSize)+1)
             --print("Partitions size: " .. #partitions[1] .. ", " .. #partitions)
             local partition = partitions[partitionY][partitionX]
@@ -590,7 +593,6 @@ function TeletextCanvas:composite(...)
                 local other = partition[i]
                 local otherCanvas, ox, oy = other[1], other[2], other[3]
                 if PixelCanvas.is(otherCanvas) then ---@cast other PixelCanvas
-                    t1 = os.epoch("utc")
                     if otherCanvas.canvas[y-oy+1] then
                         local otherPixel = (otherCanvas.canvas[y-oy+1] or {})[x-ox+1]
                         if otherPixel then
@@ -608,7 +610,6 @@ function TeletextCanvas:composite(...)
                             break
                         end
                     end
-                t2 = os.epoch("utc")
                 else ---@cast other TextCanvas
                     -- print( targetX .. ", " .. targetY .. ": " .. ox .. ", " .. oy .. " -> " .. x .. ", " .. y)
                     local ty = ceil((y-oy+1)/3) --ceil(targetY - oy / 3)
@@ -628,7 +629,7 @@ function TeletextCanvas:composite(...)
                         local otherB = otherRow.b[tx]
                         if otherT then
                             found = true
-                            foundText = true
+                            -- foundText = true
 
                             local currRow = self.canvas[targetY]
                             local currT = currRow.t[targetX]

@@ -70,7 +70,7 @@ end
 ---@param fontSheet PixelCanvas
 ---@param mapping string
 ---@return Font
-return function(fontSheet, mapping)
+function Font.new(fontSheet, mapping)
     local self = setmetatable({}, Font_mt)
 
     self.height = fontSheet.height-1
@@ -96,3 +96,5 @@ return function(fontSheet, mapping)
 
     return self
 end
+
+return Font.new

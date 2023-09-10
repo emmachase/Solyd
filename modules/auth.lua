@@ -184,21 +184,6 @@ function V3:round()
     return V3.new(math.floor(self.x + 0.5), math.floor(self.y + 0.5), math.floor(self.z + 0.5))
 end
 
-function vmax(...)
-    local args = {...}
-    local max = args[1]
-    local maxVal = max:mag()
-    for i = 2, #args do
-        local val = args[i]:mag()
-        if val > maxVal then
-            max = args[i]
-            maxVal = val
-        end
-    end
-
-    return max
-end
-
 setmetatable(V3, {__call = function(_, ...) return V3.new(...) end})
 
 function Ray:getLookPlane()
@@ -339,7 +324,7 @@ return {
         monitorWidth, monitorHeight = monitor.getSize()
 
         if fs.exists("calibration") then
-            local handle = fs.open("calibration", "r")
+            local handle = fs.open("calibration", "r") ---@cast handle FileHandle
             local cVals = textutils.unserialize(handle.readAll())
             handle.close()
 
