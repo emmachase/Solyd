@@ -138,6 +138,27 @@ function Solyd.useEffect(fun, deps)
     end
 end
 
+--- Hook that synchronizes a component's state with an external store.
+---@generic T
+---@param subscribe fun(cb: fun()): fun() -- A function that subscribes to changes in the external store. Returns an unsubscribe function.
+---@param getSnapshot fun(): T -- A function that returns the current snapshot of the external store.
+---@return T snapshot -- The current snapshot of the external store.
+function Solyd.useSyncExternalStore(subscribe, getSnapshot)
+    local state, setState = Solyd.useState(nil)
+
+    Solyd.useEffect(function()
+        setState(getSnapshot())
+
+        local unsubscribe = subscribe(function()
+            setState(getSnapshot())
+        end)
+
+        return unsubscribe
+    end, {subscribe, getSnapshot})
+
+    return state
+end
+
 ---Get a value from the component context using the given key, returns nil if the key is not found.
 ---@generic T
 ---@param key any
