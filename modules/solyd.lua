@@ -86,7 +86,7 @@ function Solyd.useMemo(fun, deps)
     if memo.deps == nil then
         memo.deps = deps
     else
-        for i, v in ipairs(deps) do ---@cast deps any[]
+        for i, v in pairs(deps) do ---@cast deps any[]
             if v ~= memo.deps[i] then
                 memo.value = fun()
                 memo.deps = deps
@@ -126,7 +126,7 @@ function Solyd.useEffect(fun, deps)
     if memo.deps == nil then
         memo.deps = deps
     else
-        for i, v in ipairs(deps) do ---@cast deps any[]
+        for i, v in pairs(deps) do ---@cast deps any[]
             if v ~= memo.deps[i] then
                 memo.unmount()
                 memo.deps = deps
